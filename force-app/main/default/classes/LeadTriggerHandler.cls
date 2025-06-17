@@ -1,0 +1,25 @@
+public with sharing class LeadTriggerHandler extends TriggerHandler{
+
+    List<Lead> newLeads;
+    Map<Id, Lead> oldLeads;
+
+
+    public LeadTriggerHandler() {
+
+        this ( (List<Lead>) Trigger.new, (Map<Id, Lead>) Trigger.oldMap);
+    }
+
+    public LeadTriggerHandler(List<Lead> newLeads, Map<Id, Lead> oldLeads) {
+        this.newLeads = newLeads;
+        this.oldLeads = oldLeads;
+        
+    }
+
+    public override void beforeUpdate() {
+        System.debug('test beforeUpdate');
+    }
+
+    public override void beforeInsert() {
+        System.debug('test beforeUpdate');
+    }
+}
