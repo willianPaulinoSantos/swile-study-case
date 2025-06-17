@@ -1,0 +1,22 @@
+public with sharing class OpportunityTriggerHandler extends TriggerHandler{
+
+    List<Opportunity>  newOpportunities;
+    Map<Id, Opportunity> oldOpportunities;
+
+    public OpportunityTriggerHandler() {
+
+        this ( (List<Opportunity>) Trigger.new, (Map<Id, Opportunity>) Trigger.oldMap);
+    }
+
+    public OpportunityTriggerHandler(List<Opportunity>  newOpportunities, Map<Id, Opportunity> oldOpportunities) {
+
+        this.newOpportunities = newOpportunities;
+        this.oldOpportunities = oldOpportunities;
+    }
+
+    
+    public override void beforeInsert(){
+
+        System.debug('test beforeInsert Opportunity trigger invoking');
+    }
+}
