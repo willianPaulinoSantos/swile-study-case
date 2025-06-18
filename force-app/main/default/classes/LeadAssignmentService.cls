@@ -14,20 +14,24 @@ public with sharing class LeadAssignmentService implements AssignmentInterface {
 
         Map<String, Commercial_Team__c> commercialTeamMap = getCommercialTeamWithMembersMap();
 
+        Map<String, List<Team_Member__c>> teamMembersMap = buildEligibleMemberMap(commercialTeamMap);
+
+        List<Team_Member__c> teamMembersToUpdate = new List<Team_Member__c>();
+
         for (Lead lead : leads) {
             String key = CompositeKeyBuilder.buildKey(lead);
-            Commercial_Team__c team = commercialTeamMap.get(key);
 
-            if(!isThereAnyElegibleTeam(team)) {
-            return;
+            List<Team_Member__c> eligibleTeamMembers = teamMembersMap.get(key);
+
+            if (eligibleTeamMembers != null && !eligibleTeamMembers.isEmpty()) {
+
+                List<Team_Member__c> sortedEligibleMembers = sortMembersByProspectsCountAscending(eligibleTeamMembers);
+    
+                lead.OwnerId = sortedEligibleMembers[0].user__c;
+                sortedEligibleMembers[0].prospects_count__c += 1;
+                teamMembersToUpdate.add(sortedEligibleMembers[0]);
             }
-
-            List<Team_Member__c> eligibleMembers = getElegibleTeamMembers(team);
-
-            Team_Member__c assigned = eligibleMembers[0];
-            lead.OwnerId = assigned.user__c;
         }
-
     }
 
     public Map<string, Commercial_Team__c> buildCommercialTeamMap(List<Commercial_Team__c> teams){
@@ -74,8 +78,28 @@ public with sharing class LeadAssignmentService implements AssignmentInterface {
         return true;
     }
 
-    private List<Team_Member__c> sortByProspectsCountAsc(List<Team_Member__c> teamMembers) {
-        // TO DO
-        return teamMembers;
+    public List<Team_Member__c> sortMembersByProspectsCountAscending(List<Team_Member__c> teamMembers) {
+        List<Team_Member__c> sortedTeamMembers = (List<Team_Member__c>) SObjectSortUtils.quickSortByNumericField(teamMembers, 'prospects_count__c');
+        System.debug('Sorted members: ' + sortedTeamMembers);
+        return sortedTeamMembers;
+    }
+
+    private Map<String, List<Team_Member__c>> buildEligibleMemberMap(Map<String, Commercial_Team__c> teamMap) {
+        Map<String, List<Team_Member__c>> result = new Map<String, List<Team_Member__c>>();
+
+        for (String key : teamMap.keySet()) {
+            Commercial_Team__c team = teamMap.get(key);
+            List<Team_Member__c> members = new List<Team_Member__c>();
+
+            for (Team_Member__c member : team.Team_Members__r) {
+                if (!member.is_manager__c && !member.is_absent__c) {
+                    members.add(member);
+                }
+            }
+
+            result.put(key, members);
+        }
+
+        return result;
     }
 }
