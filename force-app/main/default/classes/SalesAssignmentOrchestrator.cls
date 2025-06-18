@@ -2,7 +2,9 @@ public with sharing class SalesAssignmentOrchestrator {
 
     public static void startAssignmentProcess(List<SObject> records){
         
-        if(!isValidList(records)) return;
+        if(!isValidList(records)) {
+            return;
+        }
 
         orchestrateAssignmentServices(records);
     }

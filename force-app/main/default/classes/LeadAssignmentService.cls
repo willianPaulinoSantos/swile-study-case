@@ -8,7 +8,9 @@ public with sharing class LeadAssignmentService implements AssignmentInterface {
 
     public void assign(List<Lead> leads) {
 
-        if(!isValidList(leads)) return;
+        if(!isValidList(leads)) {
+            return;
+        }
 
         Map<String, Commercial_Team__c> commercialTeamMap = getCommercialTeamWithMembersMap();
 
@@ -16,7 +18,9 @@ public with sharing class LeadAssignmentService implements AssignmentInterface {
             String key = CompositeKeyBuilder.buildKey(lead);
             Commercial_Team__c team = commercialTeamMap.get(key);
 
-            if(!isThereAnyElegibleTeam(team)) return;
+            if(!isThereAnyElegibleTeam(team)) {
+            return;
+            }
 
             List<Team_Member__c> eligibleMembers = getElegibleTeamMembers(team);
 
@@ -54,7 +58,9 @@ public with sharing class LeadAssignmentService implements AssignmentInterface {
                 }
             }
         
-        if(eligibleMembers.isEmpty()) return null;
+        if(eligibleMembers.isEmpty()) {
+            return null;
+        }
 
         return eligibleMembers;
     }

@@ -13,7 +13,10 @@ public with sharing class CompositeKeyBuilder {
     }
 
     private static String normalize(String rawKey) {
-        if (String.isBlank(rawKey)) return '';
+        if (String.isBlank(rawKey)) {
+            return  '';
+        }
+        
         return rawKey.replaceAll('\\s+', '').toLowerCase();
     }
 }
