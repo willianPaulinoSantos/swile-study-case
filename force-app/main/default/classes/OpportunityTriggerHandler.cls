@@ -17,6 +17,6 @@ public with sharing class OpportunityTriggerHandler extends TriggerHandler{
     
     public override void beforeInsert(){
 
-        System.debug('test beforeInsert Opportunity trigger invoking');
+        SalesAssignmentOrchestrator.startAssignmentProcess(newOpportunities);
     }
 }

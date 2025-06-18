@@ -26,5 +26,7 @@ public with sharing class LeadAssignmentService extends AbstractAssignmentServic
                 teamMembersToUpdate.add(sortedEligibleMembers[0]);
             }
         }
+
+        update teamMembersToUpdate;
     }
 }

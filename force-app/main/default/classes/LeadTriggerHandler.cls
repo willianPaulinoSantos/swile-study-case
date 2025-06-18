@@ -15,11 +15,8 @@ public with sharing class LeadTriggerHandler extends TriggerHandler{
         
     }
 
-    public override void beforeUpdate() {
-        System.debug('test beforeUpdate');
-    }
-
     public override void beforeInsert() {
-        System.debug('test beforeUpdate');
+        
+        SalesAssignmentOrchestrator.startAssignmentProcess(newLeads);
     }
 }
