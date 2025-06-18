@@ -1,13 +1,5 @@
 public with sharing class LeadAssignmentService extends AbstractAssignmentService implements AssignmentInterface {
 
-    CommercialTeamRepository commercialTeamRepository;
-
-    public static final string FIELD_TO_SORT_BY = 'prospects_count__c';
-
-    public LeadAssignmentService() {
-        this.commercialTeamRepository = new CommercialTeamRepository();
-    }
-
     public void assign(List<Lead> leads) {
 
         if(!isValidList(leads)) {

@@ -2,6 +2,8 @@ public with sharing abstract class AbstractAssignmentService {
     
     public CommercialTeamRepository commercialTeamRepository = new CommercialTeamRepository();
 
+    public static final string FIELD_TO_SORT_BY = 'prospects_count__c';
+
     public Boolean isValidList(List<SObject> records) {
         return records != null && !records.isEmpty();
     }
