@@ -37,6 +37,32 @@ public with sharing class SObjectSortUtils {
         return i + 1;
     }
 
+    public static List<SObject> bubbleSortByNumericField(List<SObject> objectList, String fieldName) {
+        if (objectList == null || objectList.size() <= 1 || String.isBlank(fieldName)) {
+            return objectList;
+        }
+
+        Integer n = objectList.size();
+
+        for (Integer pass = 0; pass < n - 1; pass++) {
+            Boolean swapped = false;
+            for (Integer i = 0; i < n - 1 - pass; i++) {
+                Integer first = convertToInteger(objectList[i].get(fieldName));
+                Integer second = convertToInteger(objectList[i + 1].get(fieldName));
+
+                if (first > second) {
+                    swap(objectList, i, i + 1);
+                    swapped = true;
+                }
+            }
+            if (!swapped) {
+                break; // Early exit if no swaps occurred in this pass
+            }
+        }
+
+        return objectList;
+    }
+
     private static void swap(List<SObject> objectList, Integer i, Integer j) {
         SObject temp = objectList[i];
         objectList[i] = objectList[j];

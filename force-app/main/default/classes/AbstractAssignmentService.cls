@@ -43,7 +43,7 @@ public with sharing abstract class AbstractAssignmentService {
     }
 
     public virtual List<Team_Member__c> sortMembersByProspectsCountAscending(List<Team_Member__c> teamMembers, String fieldApiName) {
-        List<Team_Member__c> sortedTeamMembers = (List<Team_Member__c>) SObjectSortUtils.quickSortByNumericField(teamMembers, fieldApiName);
+        List<Team_Member__c> sortedTeamMembers = (List<Team_Member__c>) SObjectSortUtils.bubbleSortByNumericField(teamMembers, fieldApiName);
 
         return sortedTeamMembers;
     }
