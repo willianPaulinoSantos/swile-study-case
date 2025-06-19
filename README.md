@@ -1,7 +1,7 @@
 # Swile Study Case - Willian Paulino
 
 # Deliverables
-
+---
 ## 1 - Create a schema of the base data model (any tool of your choice)
 
 Lead has all the fields necessary for the assignment logic. For opportunities, we get the contry code and employee range from Account and product interest from Opportunity, to run assignment logic.
@@ -25,7 +25,7 @@ erDiagram
         picklist product_interest__c
     }
 ```
-
+---
 ## 2 - Create the required objects and fields (+ schema of those objects using your preferred tool)
 
 Team_Member__c is a junction object between User and Commercial_Team__c, since one user can belong to multiple teams and one team can have multiple user, configuring a many-to-many relationship.
@@ -55,7 +55,30 @@ erDiagram
         picklist product_interest__c
     }
 ```
+---
+## 🔍 Sorting Strategy Justification
 
+### 🔄 Sorting Problem
+
+Each time a Lead is assigned to a Team Member, their `prospects_count__c` increases. This change can alter who has the lowest count in the team, potentially shifting the "next best" candidate for assignment.
+
+To ensure fair distribution, the list of eligible Team Members must be **re-sorted after every assignment** based on the updated prospect counts.
+
+I chose **Bubble Sort** over Quick Sort or other algorithms based on the specific constraints and characteristics of the use case:
+
+### ✅ Why Bubble Sort?
+- **Small Data Set**: Each commercial team has fewer than 20 members, making algorithmic complexity less significant.
+- **Nearly Sorted Input**: After each assignment, the list of team members is almost sorted due to minor changes in `prospects_count__c`. Bubble Sort performs **very efficiently** in such scenarios thanks to its early-exit optimization.
+- **Simplicity and Clarity**: The algorithm is easy to implement, understand, and maintain, ensuring future developers can quickly reason about the logic.
+
+### ❌ Why Not Quick Sort?
+- **Unnecessary Overhead**: Quick Sort introduces recursion and extra logic that isn't justified for small lists.
+- **Not Adaptive**: It does not take advantage of the nearly sorted nature of the list.
+- **Stack Depth Risk**: While not an immediate concern in this use case, recursive algorithms pose a potential risk of stack overflow.
+
+### ⚖️ Conclusion
+-  For this use case — **small, nearly sorted lists** — Bubble Sort provides better practical performance, improved readability, and easier maintainability than more complex alternatives.
+---
 # Salesforce DX Project: Next Steps
 
 Now that you’ve created a Salesforce DX project, what’s next? Here are some documentation resources to get you started.
