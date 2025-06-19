@@ -24,8 +24,9 @@ public with sharing class SalesAssignmentOrchestrator {
 
         } catch (Exception e) {
 
-            System.debug('Assignment Error: ' + e.getMessage());
-            // TO DO
+            throw new SalesAssignmentOrchestratorException('Assignment Error: ' + e.getMessage());
         }
     }
+
+    public class SalesAssignmentOrchestratorException extends Exception {}
 }
