@@ -7,34 +7,34 @@ public with sharing class SObjectSortUtils {
             return objectList;
         }
 
-        return quickSortRecursive(objectList, fieldName, 0, objectList.size() - 1);
+        return quickSort(objectList, 0, objectList.size() - 1, fieldName);
     }
 
-    private static List<SObject> quickSortRecursive(List<SObject> objectList, String fieldName, Integer lowerIndex, Integer higherIndex) {
+    private static List<SObject> quickSort(List<SObject> objectList, Integer startIndex, Integer endIndex, String fieldName) {
 
-        if (lowerIndex < higherIndex) {
-            Integer pivotIndex = partition(objectList, fieldName, lowerIndex, higherIndex);
-            quickSortRecursive(objectList, fieldName, lowerIndex, pivotIndex - 1);
-            quickSortRecursive(objectList, fieldName, pivotIndex + 1, higherIndex);
+        if (startIndex < endIndex) {
+            Integer pivotIndex = partition(objectList, startIndex, endIndex, fieldName);
+            quickSort(objectList, startIndex, pivotIndex - 1, fieldName);
+            quickSort(objectList, pivotIndex + 1, endIndex, fieldName);
         }
 
         return objectList;
     }
 
-    private static Integer partition(List<SObject> objectList, String fieldName, Integer lowerIndex, Integer higherIndex) {
+    private static Integer partition(List<SObject> objectList, Integer startIndex, Integer endIndex,  String fieldName) {
 
-        Integer pivot = convertToInteger(objectList[higherIndex].get(fieldName));
-        Integer lastSmallerIndex = lowerIndex - 1;
+        Integer pivot = convertToInteger(objectList[endIndex].get(fieldName));
+        Integer i = startIndex - 1;
 
-        for (Integer currentIndex = lowerIndex; currentIndex < higherIndex; currentIndex++) {
-            if (convertToInteger(objectList[currentIndex].get(fieldName)) <= pivot) {
-                lastSmallerIndex++;
-                swap(objectList, lastSmallerIndex, currentIndex);
+        for (Integer j = startIndex; j < endIndex; j++) {
+            if (convertToInteger(objectList[j].get(fieldName)) <= pivot) {
+                i++;
+                swap(objectList, i, j);
             }
         }
 
-        swap(objectList, lastSmallerIndex + 1, higherIndex);
-        return lastSmallerIndex + 1;
+        swap(objectList, i + 1, endIndex);
+        return i + 1;
     }
 
     private static void swap(List<SObject> objectList, Integer i, Integer j) {
