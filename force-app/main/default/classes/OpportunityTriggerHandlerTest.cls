@@ -19,19 +19,19 @@ public with sharing class OpportunityTriggerHandlerTest {
     }
     
     @isTest
-    static void beforeInser_endToEnd() {
+    static void beforeInsertEndToEnd() {
         List<Team_Member__c> targetLeadOwner = [SELECT Id, Name, user__c FROM Team_Member__c WHERE prospects_count__c = 0];
 
         List<Account> accoun = [SELECT Id, Name, country_code__c, employee_range__c FROM Account LIMIT 1];
+
+        Opportunity newOpportunity = new Opportunity ( Name = 'Test Opp', 
+                                                        StageName = 'Qualification', 
+                                                        CloseDate = DateTime.now().addDays(4).date(), 
+                                                        product_interest__c = 'Meal Voucher', 
+                                                        AccountId = accoun[0].Id);
         
         Test.startTest();
-
-        insert new Opportunity ( Name = 'Test Opp', 
-                            StageName = 'Qualification', 
-                            CloseDate = DateTime.now().addDays(4).date(), 
-                            product_interest__c = 'Meal Voucher', 
-                            AccountId = accoun[0].Id);
-
+        insert newOpportunity;
         Test.stopTest();
 
         Opportunity insertedOpportunity = [SELECT Id, OwnerId FROM Opportunity WHERE AccountId =: accoun[0].Id];
@@ -39,7 +39,7 @@ public with sharing class OpportunityTriggerHandlerTest {
     }
 
         @isTest
-    static void beforeInsert_logicTest() {
+    static void beforeInsertLogicTest() {
         
         List<Account> accoun = [SELECT Id, Name, country_code__c, employee_range__c FROM Account LIMIT 1];
 

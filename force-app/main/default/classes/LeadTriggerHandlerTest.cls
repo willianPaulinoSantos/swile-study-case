@@ -20,9 +20,11 @@ private class LeadTriggerHandlerTest {
     static void beforeInsert_endToEndTest() {
         
         List<Team_Member__c> targetLeadOwner = [SELECT Id, Name, user__c FROM Team_Member__c WHERE prospects_count__c = 0];
+
+        Lead newLead = new Lead( country_code__c = 'FR', product_interest__c = 'Meal Voucher', employee_range__c = '1 - 100', Company = 'Swile', LastName = 'Test Lead' );
         
         Test.startTest();
-        insert new Lead ( country_code__c = 'FR', product_interest__c = 'Meal Voucher', employee_range__c = '1 - 100', Company = 'Swile', LastName = 'Test Lead' );
+        insert newLead;
         Test.stopTest();
 
         Lead insertedLead = [SELECT Id, OwnerId FROM Lead WHERE Company = 'Swile'];
