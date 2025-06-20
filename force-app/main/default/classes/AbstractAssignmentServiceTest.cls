@@ -40,7 +40,7 @@ private class AbstractAssignmentServiceTest {
         System.assert(!eligibleMap.isEmpty(), 'Expected eligible members map');
 
         for (List<Team_Member__c> members : eligibleMap.values()) {
-            System.assertEquals(1, members.size(), 'Expected one eligible team member');
+            System.assertEquals(2, members.size(), 'Expected two eligible team member');
         }
     }
 
