@@ -5,10 +5,12 @@ public with sharing abstract class AbstractAssignmentService {
     public static final string FIELD_TO_SORT_BY = 'prospects_count__c';
 
     public Boolean isValidList(List<SObject> records) {
+
         return records != null && !records.isEmpty();
     }
 
     public virtual Map<string, Commercial_Team__c> getCommercialTeamWithMembersMap(){
+
         return buildCommercialTeamMap(commercialTeamRepository.getAllActiveTeamsWithTeamMembers());
     }
 
@@ -43,6 +45,7 @@ public with sharing abstract class AbstractAssignmentService {
     }
 
     public virtual List<Team_Member__c> sortMembersByProspectsCountAscending(List<Team_Member__c> teamMembers, String fieldApiName) {
+        
         List<Team_Member__c> sortedTeamMembers = (List<Team_Member__c>) SObjectSortUtils.bubbleSortByNumericField(teamMembers, fieldApiName);
 
         return sortedTeamMembers;
