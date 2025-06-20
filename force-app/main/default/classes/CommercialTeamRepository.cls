@@ -7,4 +7,12 @@ public with sharing class CommercialTeamRepository {
                 FROM Commercial_Team__c 
                 WHERE is_active__c = True];
     }
+
+    public Map<Id, Commercial_Team__c> getTeamsByIds(Set<Id> commercialTeamIds){
+
+        return new Map<Id, Commercial_Team__c>(
+                [SELECT Id, Name, maximum_prospects_count__c, country_code__c, employee_range__c, product_interest__c
+                FROM Commercial_Team__c 
+                WHERE Id IN :commercialTeamIds]);
+    }
 }
