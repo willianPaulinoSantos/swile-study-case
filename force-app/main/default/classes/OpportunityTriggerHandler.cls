@@ -1,5 +1,6 @@
 public with sharing class OpportunityTriggerHandler extends TriggerHandler{
 
+    @testVisible
     List<Opportunity>  newOpportunities;
     Map<Id, Opportunity> oldOpportunities;
 

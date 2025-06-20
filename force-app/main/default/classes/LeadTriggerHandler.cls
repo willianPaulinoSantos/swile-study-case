@@ -1,5 +1,6 @@
 public with sharing class LeadTriggerHandler extends TriggerHandler{
 
+    @testVisible
     List<Lead> newLeads;
     Map<Id, Lead> oldLeads;
 
