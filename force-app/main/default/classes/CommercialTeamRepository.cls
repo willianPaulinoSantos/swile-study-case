@@ -1,14 +1,5 @@
 public with sharing class CommercialTeamRepository {
 
-    public List<Commercial_Team__c> getCommercialTeamsBySalesAllocation(string country, string product, string prospectsEmployeeRange) {
-
-        return [SELECT Id, Name 
-                FROM Commercial_Team__c 
-                WHERE country_code__c = :country
-                AND product_interest__c = :product 
-                AND employee_range__c =: prospectsEmployeeRange];
-    }
-
     public List<Commercial_Team__c> getAllActiveTeamsWithTeamMembers(){
 
         return [SELECT Id, Name, maximum_prospects_count__c, country_code__c, employee_range__c, product_interest__c,
