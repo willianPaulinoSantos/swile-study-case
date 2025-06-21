@@ -30,6 +30,7 @@ public with sharing class OpportunityAssignmentService extends AbstractAssignmen
                 teamMembersToUpdate.add(sortedEligibleMembers[0]);
             }
         }
+        update teamMembersToUpdate;
     }
 
     public Set<Id> getAccountIds(List<Opportunity> opportunities){

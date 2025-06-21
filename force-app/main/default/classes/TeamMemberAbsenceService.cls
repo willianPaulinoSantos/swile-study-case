@@ -5,6 +5,10 @@ public with sharing class TeamMemberAbsenceService {
     public static void setCounterAfterAbscenceReturn(List<Team_Member__c> teamMembersNewState, Map<Id, Team_Member__c> teamMembersOldState){
 
         List<Team_Member__c> filteredTeamMembers = filter.filterMembersReturningFromAbscense(teamMembersNewState, teamMembersOldState);
+
+        if(filteredTeamMembers.isEmpty()) return;
+
+
         Map<Id, Team_Member__c> membersWithTeamIdKeyMap = buildMembersWithTeamIdKeyMap(filteredTeamMembers);
         Map<Id, Commercial_Team__c> commercialTeamsMap = new CommercialTeamRepository().getTeamsByIds(membersWithTeamIdKeyMap.keySet());
 
