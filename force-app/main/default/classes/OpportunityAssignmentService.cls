@@ -29,8 +29,11 @@ public with sharing class OpportunityAssignmentService extends AbstractAssignmen
                 continue;
             }
 
-            if(isReassignRequest()){
-                teamMembersToUpdate.add( getLastOwner( sortedEligibleMembers, opp ) );
+            Team_Member__c lastOwner = getLastOwner(sortedEligibleMembers, opp);
+
+            if(isReassignRequest() && lastOwner != null){
+
+                teamMembersToUpdate.add(lastOwner);
             }
 
             opp.OwnerId = sortedEligibleMembers[0].user__c;
@@ -38,7 +41,7 @@ public with sharing class OpportunityAssignmentService extends AbstractAssignmen
             teamMembersToUpdate.add(sortedEligibleMembers[0]);
 
         }
-        update new List<Team_Member__c>(teamMembersToUpdate);
+        update teamMembersToUpdate;
     }
 
     public Set<Id> getAccountIds(List<Opportunity> opportunities){

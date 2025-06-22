@@ -27,8 +27,11 @@ public with sharing class LeadAssignmentService extends AbstractAssignmentServic
                 continue;
             }
 
-            if(isReassignRequest()){
-                teamMembersToUpdate.add( getLastOwner( sortedEligibleMembers, lead ) );
+            Team_Member__c lastOwner = getLastOwner(sortedEligibleMembers, lead);
+
+            if(isReassignRequest() && lastOwner != null){
+
+                teamMembersToUpdate.add(lastOwner);
             }
 
             lead.OwnerId = sortedEligibleMembers[0].user__c;

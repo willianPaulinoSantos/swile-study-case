@@ -1,7 +1,6 @@
 public with sharing abstract class AbstractAssignmentService {
     
     public CommercialTeamRepository commercialTeamRepository = new CommercialTeamRepository();
-
     public static final string FIELD_TO_SORT_BY = 'prospects_count__c';
 
     public Boolean isValidList(List<SObject> records) {
@@ -75,7 +74,7 @@ public with sharing abstract class AbstractAssignmentService {
         List<Team_Member__c> listWithTheOldOwner = decrementProspectCountOnReassignment(teamMembers, oldRecordState);
 
         if(listWithTheOldOwner.isEmpty()){
-            return new TeamMemberRepository().findByUserId( (Id) oldRecordState.get('OwnerId') );
+            return null;
         }
 
         return listWithTheOldOwner[0];
