@@ -17,16 +17,25 @@ public with sharing class LeadAssignmentService extends AbstractAssignmentServic
 
             List<Team_Member__c> eligibleTeamMembers = teamMembersMap.get(key);
 
-            if (eligibleTeamMembers != null && !eligibleTeamMembers.isEmpty()) {
-
-                List<Team_Member__c> sortedEligibleMembers = sortMembersByProspectsCountAscending(eligibleTeamMembers, FIELD_TO_SORT_BY);
-    
-                lead.OwnerId = sortedEligibleMembers[0].user__c;
-                sortedEligibleMembers[0].prospects_count__c += 1;
-                teamMembersToUpdate.add(sortedEligibleMembers[0]);
+            if(!isValidList(eligibleTeamMembers)){
+                continue;
             }
-        }
 
+            List<Team_Member__c> sortedEligibleMembers = sortMembersByProspectsCountAscending(eligibleTeamMembers, FIELD_TO_SORT_BY);
+
+            if(isTheElegibleNewOwnerTheCurrentOwner(sortedEligibleMembers, lead)){
+                continue;
+            }
+
+            if(isReassignRequest()){
+                teamMembersToUpdate.add( getLastOwner( sortedEligibleMembers, lead ) );
+            }
+
+            lead.OwnerId = sortedEligibleMembers[0].user__c;
+            sortedEligibleMembers[0].prospects_count__c += 1;
+            teamMembersToUpdate.add(sortedEligibleMembers[0]);
+
+        }
         update teamMembersToUpdate;
     }
 }

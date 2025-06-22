@@ -29,6 +29,7 @@ public with sharing abstract class AbstractAssignmentService {
         Map<String, List<Team_Member__c>> result = new Map<String, List<Team_Member__c>>();
 
         for (String key : teamMap.keySet()) {
+
             Commercial_Team__c team = teamMap.get(key);
             List<Team_Member__c> members = new List<Team_Member__c>();
 
@@ -40,7 +41,6 @@ public with sharing abstract class AbstractAssignmentService {
 
             result.put(key, members);
         }
-
         return result;
     }
 
@@ -49,5 +49,45 @@ public with sharing abstract class AbstractAssignmentService {
         List<Team_Member__c> sortedTeamMembers = (List<Team_Member__c>) SObjectSortUtils.bubbleSortByNumericField(teamMembers, fieldApiName);
 
         return sortedTeamMembers;
+    }
+
+    public Boolean isReassignRequest(){
+        return !Trigger.isExecuting;
+    }
+
+    public virtual List<Team_Member__c> decrementProspectCountOnReassignment(List<Team_Member__c> teamMembers, SObject oldRecordState){
+
+        Id oldOwnerId = (Id) oldRecordState.get('OwnerId');
+
+        List<Team_Member__c> listWithTheOldOwner = new List<Team_Member__c>();
+
+        for(Team_Member__c teamMember : teamMembers){
+            if(teamMember.user__c == oldOwnerId){
+                teamMember.prospects_count__c -= 1;
+                listWithTheOldOwner.add(teamMember);
+            }
+        }
+        return listWithTheOldOwner;
+    }
+
+    public Team_Member__c getLastOwner(List<Team_Member__c> teamMembers, SObject oldRecordState){
+
+        List<Team_Member__c> listWithTheOldOwner = decrementProspectCountOnReassignment(teamMembers, oldRecordState);
+
+        if(listWithTheOldOwner.isEmpty()){
+            return new TeamMemberRepository().findByUserId( (Id) oldRecordState.get('OwnerId') );
+        }
+
+        return listWithTheOldOwner[0];
+    }
+    
+    public Boolean isTheElegibleNewOwnerTheCurrentOwner(List<Team_Member__c> teamMembers, SObject record){
+
+        Id oldOwnerId = (Id) record.get('OwnerId');
+
+        if(teamMembers[0].user__c == oldOwnerId){
+            return true;
+        }
+        return false;
     }
 }
