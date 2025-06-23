@@ -4,15 +4,11 @@ public with sharing class OpportunityAssignmentService extends AbstractAssignmen
      
     public void assign(List<Opportunity> opportunities) {
 
-        if(!isValidList(Opportunities)) {
-            return;
-        }
-
         Map<Id, Account> accountMap = accountRepository.getAccountsMapById(getAccountIds(Opportunities));
         Map<String, Commercial_Team__c> commercialTeamMap = getCommercialTeamWithMembersMap();
         Map<String, List<Team_Member__c>> teamMembersMap = buildEligibleMemberMap(commercialTeamMap);
 
-        List<Team_Member__c> teamMembersToUpdate = new List<Team_Member__c>();
+        Map<Id, Team_Member__c> teamMembersToUpdate = new Map<Id, Team_Member__c>();
 
         for (Opportunity opp : Opportunities) {
             String key = CompositeKeyBuilder.buildKey(opp, accountMap.get(opp.accountId));
@@ -29,19 +25,17 @@ public with sharing class OpportunityAssignmentService extends AbstractAssignmen
                 continue;
             }
 
-            Team_Member__c lastOwner = getLastOwner(sortedEligibleMembers, opp);
+            if(isReassignRequest()){
 
-            if(isReassignRequest() && lastOwner != null){
-
-                teamMembersToUpdate.add(lastOwner);
+                handleReassignment(sortedEligibleMembers, opp, teamMembersToUpdate);
             }
 
             opp.OwnerId = sortedEligibleMembers[0].user__c;
             sortedEligibleMembers[0].prospects_count__c += 1;
-            teamMembersToUpdate.add(sortedEligibleMembers[0]);
+            teamMembersToUpdate.put(sortedEligibleMembers[0].Id, sortedEligibleMembers[0]);
 
         }
-        update teamMembersToUpdate;
+        update teamMembersToUpdate.values();
     }
 
     public Set<Id> getAccountIds(List<Opportunity> opportunities){

@@ -2,15 +2,9 @@ public with sharing class LeadAssignmentService extends AbstractAssignmentServic
 
     public void assign(List<Lead> leads) {
 
-        if(!isValidList(leads)) {
-            return;
-        }
-
         Map<String, Commercial_Team__c> commercialTeamMap = getCommercialTeamWithMembersMap();
-
         Map<String, List<Team_Member__c>> teamMembersMap = buildEligibleMemberMap(commercialTeamMap);
-
-        List<Team_Member__c> teamMembersToUpdate = new List<Team_Member__c>();
+        Map<Id, Team_Member__c> teamMembersToUpdate = new Map<Id, Team_Member__c>();
 
         for (Lead lead : leads) {
             String key = CompositeKeyBuilder.buildKey(lead);
@@ -26,19 +20,17 @@ public with sharing class LeadAssignmentService extends AbstractAssignmentServic
             if(isTheElegibleNewOwnerTheCurrentOwner(sortedEligibleMembers, lead)){
                 continue;
             }
+            
+            if(isReassignRequest()){
 
-            Team_Member__c lastOwner = getLastOwner(sortedEligibleMembers, lead);
-
-            if(isReassignRequest() && lastOwner != null){
-
-                teamMembersToUpdate.add(lastOwner);
+                handleReassignment(sortedEligibleMembers, lead, teamMembersToUpdate);
             }
 
             lead.OwnerId = sortedEligibleMembers[0].user__c;
             sortedEligibleMembers[0].prospects_count__c += 1;
-            teamMembersToUpdate.add(sortedEligibleMembers[0]);
-
+            teamMembersToUpdate.put(sortedEligibleMembers[0].Id, sortedEligibleMembers[0]);
         }
-        update teamMembersToUpdate;
+
+        update teamMembersToUpdate.values();
     }
 }

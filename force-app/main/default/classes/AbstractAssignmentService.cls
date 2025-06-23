@@ -54,6 +54,17 @@ public with sharing abstract class AbstractAssignmentService {
         return !Trigger.isExecuting;
     }
 
+    public void handleReassignment(List<Team_Member__c> sortedEligibleMembers, SObject record, Map<Id, Team_Member__c> teamMembersToUpdate ){
+
+        Team_Member__c lastOwner = getLastOwner(sortedEligibleMembers, record);
+
+        if(lastOwner == null) {
+            return;
+        }
+
+        teamMembersToUpdate.put(lastOwner.Id, lastOwner);
+    }
+
     public virtual List<Team_Member__c> decrementProspectCountOnReassignment(List<Team_Member__c> teamMembers, SObject oldRecordState){
 
         Id oldOwnerId = (Id) oldRecordState.get('OwnerId');
