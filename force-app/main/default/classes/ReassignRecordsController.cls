@@ -3,34 +3,40 @@ public with sharing class ReassignRecordsController {
     public static final String LEAD_API_NAME = String.valueOf(Lead.SObjectType);
     public static final String OPPORTUNITY_API_NAME = String.valueOf(Opportunity.SObjectType);
 
+    private LeadAssignmentService leadAssignmentService;
+    private OpportunityAssignmentService opportunityAssignmentService;
+
+    public ReassignRecordsController(){
+        this.leadAssignmentService = new LeadAssignmentService();
+        this.opportunityAssignmentService = new OpportunityAssignmentService();
+    }
+
      @AuraEnabled
     public static void reassignOwners(Id recordId, String objectApiName) {
 
         if (recordId == null) {
             return;
         }
-
-        List<SObject> records = orchestrateQuery(objectApiName, recordId);
-
-        SalesAssignmentOrchestrator.startAssignmentProcess(records);
-        update records;
+        orchestrateAssignment(objectApiName, recordId);
     }
 
-    private static List<SObject> orchestrateQuery(String objectApiName, Id recordId){
-
-        List<SObject> recordList = new List<SObject>();
+    private static void orchestrateAssignment(String objectApiName, Id recordId){
 
         if( objectApiName == LEAD_API_NAME ) {
 
-             recordList.add( new LeadRepository().getLeadById(recordId) );
+            List<Lead> leadList = new LeadRepository().getLeadById(recordId);
+            new LeadAssignmentService().assign(leadList);
+
+            update leadList;
         }
 
         if( objectApiName == OPPORTUNITY_API_NAME ) {
 
-             recordList.add( new OpportunityRepository().getOpportunityById(recordId) );
-        }
+            List<Opportunity> opportunityList = new OpportunityRepository().getOpportunityById(recordId);
+            new OpportunityAssignmentService().assign(opportunityList);
 
-        return recordList;
+            update opportunityList;
+        }
     }
 
 }

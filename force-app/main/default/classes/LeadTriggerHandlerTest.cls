@@ -17,7 +17,7 @@ private class LeadTriggerHandlerTest {
     }
 
     @isTest
-    static void beforeInsert_endToEndTest() {
+    static void beforeInsertEndToEnd() {
         
         List<Team_Member__c> targetLeadOwner = [SELECT Id, Name, user__c FROM Team_Member__c WHERE prospects_count__c = 0];
 
@@ -29,25 +29,5 @@ private class LeadTriggerHandlerTest {
 
         Lead insertedLead = [SELECT Id, OwnerId FROM Lead WHERE Company = 'Swile'];
         System.assertEquals(insertedLead.OwnerId, targetLeadOwner[0].user__c , 'Lead OwnerId should have been assigned by trigger');
-    }
-
-    @isTest
-    static void beforeInsert_logicTest() {
-        
-        List<SObject> mockLeads = new List<SObject>{
-            new Lead ( country_code__c = 'FR', product_interest__c = 'Meal Voucher', employee_range__c = '1 - 100', Company = 'Swile', LastName = 'Test Lead' )
-        };
-
-        MockAssignmentService.wasCalled = false;
-        AssignmentServiceFactory.testServiceOverrides.put(Lead.SObjectType, new MockAssignmentService());
-
-        LeadTriggerHandler leadTriggerHandler = new LeadTriggerHandler();
-        leadTriggerHandler.newLeads = mockLeads;
-
-        Test.startTest();
-        leadTriggerHandler.beforeInsert();
-        Test.stopTest();
-
-        System.assert(MockAssignmentService.wasCalled, 'Expected assign method to be called');
     }
 }

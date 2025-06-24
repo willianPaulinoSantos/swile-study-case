@@ -3,6 +3,7 @@ public with sharing class LeadTriggerHandler extends TriggerHandler{
     @testVisible
     List<Lead> newLeads;
     Map<Id, Lead> oldLeads;
+    LeadAssignmentService leadAssignmentService;
 
 
     public LeadTriggerHandler() {
@@ -13,11 +14,12 @@ public with sharing class LeadTriggerHandler extends TriggerHandler{
     public LeadTriggerHandler(List<Lead> newLeads, Map<Id, Lead> oldLeads) {
         this.newLeads = newLeads;
         this.oldLeads = oldLeads;
+        this.leadAssignmentService = new LeadAssignmentService();
         
     }
 
     public override void beforeInsert() {
         
-        SalesAssignmentOrchestrator.startAssignmentProcess(newLeads);
+       leadAssignmentService.assign(newLeads);
     }
 }

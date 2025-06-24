@@ -3,6 +3,7 @@ public with sharing class OpportunityTriggerHandler extends TriggerHandler{
     @testVisible
     List<Opportunity>  newOpportunities;
     Map<Id, Opportunity> oldOpportunities;
+    OpportunityAssignmentService opportunityAssignmentService;
 
     public OpportunityTriggerHandler() {
 
@@ -13,11 +14,12 @@ public with sharing class OpportunityTriggerHandler extends TriggerHandler{
 
         this.newOpportunities = newOpportunities;
         this.oldOpportunities = oldOpportunities;
+        this.opportunityAssignmentService = new OpportunityAssignmentService();
     }
 
     
     public override void beforeInsert(){
 
-        SalesAssignmentOrchestrator.startAssignmentProcess(newOpportunities);
+        opportunityAssignmentService.assign(newOpportunities);
     }
 }

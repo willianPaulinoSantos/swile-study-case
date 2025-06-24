@@ -37,30 +37,4 @@ public with sharing class OpportunityTriggerHandlerTest {
         Opportunity insertedOpportunity = [SELECT Id, OwnerId FROM Opportunity WHERE AccountId =: accoun[0].Id];
         System.assertEquals(insertedOpportunity.OwnerId, targetLeadOwner[0].user__c , 'Lead OwnerId should have been assigned by trigger');
     }
-
-        @isTest
-    static void beforeInsertLogicTest() {
-        
-        List<Account> accoun = [SELECT Id, Name, country_code__c, employee_range__c FROM Account LIMIT 1];
-
-        List<SObject> mockOpportunityList = new List<SObject>{
-           new Opportunity ( Name = 'Test Opp', 
-                            StageName = 'Qualification', 
-                            CloseDate = DateTime.now().addDays(4).date(), 
-                            product_interest__c = 'Meal Voucher', 
-                            AccountId = accoun[0].Id)
-        };
-
-        MockAssignmentService.wasCalled = false;
-        AssignmentServiceFactory.testServiceOverrides.put(Opportunity.SObjectType, new MockAssignmentService());
-
-        OpportunityTriggerHandler opportunityTriggerHandler = new OpportunityTriggerHandler();
-        opportunityTriggerHandler.newOpportunities = mockOpportunityList;
-
-        Test.startTest();
-        OpportunityTriggerHandler.beforeInsert();
-        Test.stopTest();
-
-        System.assert(MockAssignmentService.wasCalled, 'Expected assign method to be called');
-    }
 }

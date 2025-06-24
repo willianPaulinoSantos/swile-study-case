@@ -56,6 +56,67 @@ erDiagram
     }
 ```
 ---
+
+## 3. Implement the technical solution to fulfill the user stories: Apex Triggers, Apex Classes, Batch
+
+### 3.1 Assignment Feature
+
+This class diagram represents the architecture of the Assignment feature in Salesforce.
+
+**TriggerHandler** is an abstract base class that defines common trigger handling behavior.
+
+**LeadTriggerHandler** and **OpportunityTriggerHandler** extend TriggerHandler to implement object-specific logic.
+
+Both **LeadAssignmentService** and **OpportunityAssignmentService** are concrete classes responsible for assigning records based on business rules.
+
+These services inherit from **AbstractAssignmentService**, which provides shared logic and implements the **AssignmentInterface**.
+
+The **AssignmentInterface** enforces the assign() method contract across all assignment services.
+
+This design promotes separation of concerns, reusability of logic, and scalability for additional object-specific handlers and services.
+
+```mermaid
+classDiagram
+    class TriggerHandler
+    class LeadTriggerHandler{
+        +beforeInsert()
+    }
+    class OpportunityTriggerHandler{
+        +beforeInsert()
+    }
+    class AssignmentInterface {
+        <<Interface>>
+        +assign()
+    }
+    class AbstractAssignmentService {
+        <<Abstract>>
+        +validate()
+        +assign()
+    }
+    class LeadAssignmentService {
+        +assign()
+    }
+    class OpportunityAssignmentService {
+        +assign()
+    }
+
+    TriggerHandler --|> LeadTriggerHandler
+    TriggerHandler --|> OpportunityTriggerHandler
+
+    LeadAssignmentService <|-- AbstractAssignmentService
+    OpportunityAssignmentService <|-- AbstractAssignmentService
+
+    AbstractAssignmentService <|.. AssignmentInterface
+
+     LeadTriggerHandler --> LeadAssignmentService
+    OpportunityTriggerHandler --> OpportunityAssignmentService
+```
+---
+### 3.2 Reassignment Feature
+
+### 3.3 User's Absence Feature
+---
+# :ledger: Appendix
 ## 🔍 Sorting Strategy Justification
 
 ### 🔄 Sorting Problem
