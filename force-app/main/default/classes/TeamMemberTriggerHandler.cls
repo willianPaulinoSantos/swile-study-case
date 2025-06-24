@@ -16,6 +16,6 @@ public with sharing class TeamMemberTriggerHandler extends TriggerHandler {
 
     public override void beforeUpdate() {
         
-        TeamMemberAbsenceService.setCounterAfterAbscenceReturn(newTeamMembers, oldTeamMembers);
+        TeamMemberAbsenceService.orchestrateTeamMembershipUpdate(newTeamMembers, oldTeamMembers);
     }
 }
