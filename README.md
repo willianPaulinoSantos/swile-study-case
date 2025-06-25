@@ -111,10 +111,199 @@ classDiagram
      LeadTriggerHandler --> LeadAssignmentService
     OpportunityTriggerHandler --> OpportunityAssignmentService
 ```
+#### Assignment Logic Within Both Services
+    1 - Retrieve all commercial teams and its members
+    2 - Build comercial teams Maps with a composite key (Country Code + Product Interest + Employee Range)
+    3 - Iterate over Trigger Records, building the lead / opportunity composite key (following the same rules of commercial teams composite key)
+        4 - Get the right team for the lead / opportunity using the composite key
+        5 - Sort the team members ascending based on prospects counter
+        6 - Assign the lead / opportunity to the team member with the fewest prospects count
+        7 - Add 1 to its prospects counter.
 ---
 ### 3.2 Reassignment Feature
+The reassignment feature reuses the existing Assignment Service implemented in both the Opportunity and Lead triggers. The key difference is that, instead of being triggered by DML operations, the service is invoked through a Lightning Web Component (**LWC**) of type **Action**. This LWC is executed when the user clicks the **Reassign** button on the record page.
+
+```mermaid
+classDiagram
+class AssignmentInterface {
+        <<Interface>>
+        +assign()
+    }
+    class AbstractAssignmentService {
+        <<Abstract>>
+        +validate()
+        +assign()
+    }
+    class LeadAssignmentService {
+        +assign()
+    }
+    class OpportunityAssignmentService {
+        +assign()
+    }
+
+    class ReassignRecordsController {
+        +reassignOwners()
+    }
+
+    LeadAssignmentService <|-- AbstractAssignmentService
+    OpportunityAssignmentService <|-- AbstractAssignmentService
+
+    AbstractAssignmentService <|.. AssignmentInterface
+
+    ReassignRecordsController --> LeadAssignmentService
+    ReassignRecordsController --> OpportunityAssignmentService
+
+```
+#### Reassignment Logic For Both Opportunity / Lead
+    1 - Retrieve all commercial teams and its members
+    2 - Build comercial teams Maps with a composite key (Country Code + Product Interest + Employee Range)
+    3 - Iterate over Opportunity / Lead Records, building the lead / opportunity composite key (following the same rules of commercial teams composite key)
+        4 - Get the Last Owner Team Member and subtract 1 from its prospects counter.
+        5 - Get the right team for the lead / opportunity using the composite key
+        6 - Sort the team members ascending based on prospects counter
+        7 - Assign the lead / opportunity to the team member with the fewest prospects count.
+        8 - Add 1 to its prospects counter.
+
+Note that although the **Reassign** button handles one record at a time, the reassignment logic is fully bulkified. This means the solution is designed to support both single and multiple record reassignments efficiently
+
+---
 
 ### 3.3 User's Absence Feature
+
+The absence feature ensures users marked as unavailable are excluded from receiving new Lead or Opportunity assignments. This is controlled via the `Is_Absent__c` field on each user's `Team_Member__c` records, which represent their membership across different sales teams.
+
+#### Behavior Overview:
+
+##### Marking as Absent:
+Managers can update a user's status to absent, which excludes them from future assignment logic across all teams. They manage their user's absence from the commercial team record page. If the manager mark a given team member as absent, the system:
+```
+    1 - Will get all the team member records related to this user. This set of records represent the user's team membership.
+    2 - Set the user's team membership as absent.
+    3 - Update the user's team membership.
+```
+
+That gives flexibility for the manager. It does not matter what user's team member record the manager mark as absent. This update will be spread for the user's team membership. **Example:**
+
+The manager mark the John Doe's Team Member record of the `FR - Insides - Sales - Meal Voucher (1-100)` team as Absent.
+
+John Doe is also part of the `FR - KAM - Sales - Gift (+501)` and `FR - KAM - Sales - Travel (+501)`. That means that the John Doe has 3 Team_Member__c records. One of them its marked as absent by the manager, but what about the others John Doe's Team_Member__c records? 
+
+They are retrieved in the `Team_Member__c` trigger, and updated as absent in the before update.
+
+##### Returning from Absence:
+When a user's `Is_Absent__c` field is updated from true to false, the system:
+
+Automatically updates all of their `Team_Member__c` records to mark them as present.
+
+Sets each record's `Prospect_Count__c` to match the highest count within the corresponding team, ensuring fairness.
+
+##### Trigger Logic and Recursion Control:
+
+The updates are performed within a before update trigger.
+
+To prevent recursive trigger execution, a `static flag` in the **TriggerRecursionControl** class is used:
+
+```
+
+public with sharing class TriggerRecursionControl {
+    public static Boolean isFirstRun = true;
+}
+```
+```
+trigger TeamMemberTrigger on Team_Member__c (before update) {
+
+    if (!TriggerRecursionControl.isFirstRun) return;
+
+    TriggerRecursionControl.isFirstRun = false;
+
+    new TeamMemberTriggerHandler().run();
+}
+```
+This ensures that the trigger logic only executes once per transaction, even if multiple related updates occur.
+
+This design maintains fairness in workload distribution and supports bulk-safe trigger execution without needing asynchronous processing.
+
+
+```mermaid
+erDiagram
+    User ||--o{ Team_Member__c : User-lookup
+    User {
+        id id
+        string name
+        string isActive
+    }
+    Commercial_Team__c ||--o{ Team_Member__c : CommercialTeam-Master-detail
+    Team_Member__c {
+        string user__c
+        string commercial_team__c
+        boolean is_manager__c
+        boolean is_abscent__c
+        Integer prospects_count__c
+    }
+    Commercial_Team__c {
+        string Name
+        picklist country_code__c
+        picklist employee_range__c
+        picklist product_interest__c
+    }
+```
+---
+
+### 3.4 User's Monthly Counter Reset Feature
+
+To maintain fairness in prospect distribution, each user's prospects_count__c value is reset to 0 at the start of every month.
+
+#### ⚙️ Implementation
+This feature is implemented using a batch class `TeamMemberCounterResetBatch` and a service class `TeamMemberCounterResetBatchService`.
+
+**The batch class:**
+
+Implements both `Database.Batchable<SObject>` and `Schedulable` interfaces.
+
+Resets the counter for all `Team_Member__c` records using a SOQL query.
+
+**🕒 Schedule**
+The batch is scheduled via the static method `TeamMemberCounterResetBatch.scheduleBatch()`, which sets the CRON trigger to:
+
+```
+
+0 0 1 * *
+```
+
+This ensures the reset occurs at midnight (00:00) of the first day of each month, immediately after the last moment (11:59 PM) of the previous month.
+
+**The service class:**
+
+Contains the `resetCounters()` method, which sets each `Team_Member__c.prospects_count__c` to 0.
+
+Performs a bulk update operation to apply the reset efficiently.
+
+
+
+
+This design ensures a clean monthly reset cycle without any manual intervention.
+
+```mermaid
+classDiagram
+    class TeamMemberCounterResetBatch{
+        +start()
+        +execute()
+        +schedule()
+        +finish()
+    }
+    class TeamMemberCounterResetBatchService{
+        PROSPECT_COUNT_RESET_VALUE
+        +resetCounters()
+    }
+
+    TeamMemberCounterResetBatch --> TeamMemberCounterResetBatchService
+```
+---
+### 3.5 User's Absence Declaration Permission Control
+The Team_Member__c.is_absent__c field is not editable for all profiles.
+
+Using the permission set group **Commercial Teams Manager** I grant permission to edit the `Team_Member__c.is_absent__c` field to the managers.
+
 ---
 # :ledger: Appendix
 ## 🔍 Sorting Strategy Justification
