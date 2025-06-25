@@ -75,6 +75,8 @@ The **AssignmentInterface** enforces the assign() method contract across all ass
 
 This design promotes separation of concerns, reusability of logic, and scalability for additional object-specific handlers and services.
 
+**Classes Diagram**
+
 ```mermaid
 classDiagram
     class TriggerHandler
@@ -123,6 +125,7 @@ classDiagram
 ### 3.2 Reassignment Feature
 The reassignment feature reuses the existing Assignment Service implemented in both the Opportunity and Lead triggers. The key difference is that, instead of being triggered by DML operations, the service is invoked through a Lightning Web Component (**LWC**) of type **Action**. This LWC is executed when the user clicks the **Reassign** button on the record page.
 
+**Classes Diagram**
 ```mermaid
 classDiagram
 class AssignmentInterface {
@@ -180,7 +183,9 @@ Managers can update a user's status to absent, which excludes them from future a
     3 - Update the user's team membership.
 ```
 
-That gives flexibility for the manager. It does not matter what user's team member record the manager mark as absent. This update will be spread for the user's team membership. **Example:**
+That gives flexibility for the manager. It does not matter what user's team member record the manager mark as absent. This update will be spread for the user's team membership. 
+
+**Example:** 
 
 The manager mark the John Doe's Team Member record of the `FR - Insides - Sales - Meal Voucher (1-100)` team as Absent.
 
@@ -197,7 +202,7 @@ Sets each record's `Prospect_Count__c` to match the highest count within the cor
 
 #### Trigger Logic and Recursion Control:
 
-The updates are performed within a before update trigger.
+The team membership updates are performed within a before update trigger.
 
 To prevent recursive trigger execution, a `static flag` in the **TriggerRecursionControl** class is used:
 
@@ -217,34 +222,29 @@ trigger TeamMemberTrigger on Team_Member__c (before update) {
     new TeamMemberTriggerHandler().run();
 }
 ```
-This ensures that the trigger logic only executes once per transaction, even if multiple related updates occur.
+This ensures that the trigger logic only executes once per transaction.
 
-This design maintains fairness in workload distribution and supports bulk-safe trigger execution without needing asynchronous processing. Remember the team's data model to visualize the user's team membership.
+This design maintains fairness in workload distribution and supports bulk-safe trigger execution without needing asynchronous processing. Remember the team's data model in the section 2 to visualize the user's team membership.
 
+**Classes Diagram**
 
 ```mermaid
-erDiagram
-    User ||--o{ Team_Member__c : User-lookup
-    User {
-        id id
-        string name
-        string isActive
+classDiagram
+    class TriggerHandler
+    class TeamMemberTriggerHandler{
+        +beforeUpdate()
     }
-    Commercial_Team__c ||--o{ Team_Member__c : CommercialTeam-Master-detail
-    Team_Member__c {
-        string user__c
-        string commercial_team__c
-        boolean is_manager__c
-        boolean is_abscent__c
-        Integer prospects_count__c
+    class TeamMemberAbsenceService {
+        +orchestrateTeamMembershipUpdate()
+        +handleTeamMembersBecomingAbsence()
+        +handleTeamMembersReturningAbsence()
     }
-    Commercial_Team__c {
-        string Name
-        picklist country_code__c
-        picklist employee_range__c
-        picklist product_interest__c
-    }
+
+    TriggerHandler --|> TeamMemberTriggerHandler
+    TeamMemberTriggerHandler --> TeamMemberAbsenceService
+
 ```
+
 ---
 
 ### 3.4 User's Monthly Counter Reset Feature
