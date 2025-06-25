@@ -28,9 +28,9 @@ erDiagram
 ---
 ## 2 - Create the required objects and fields (+ schema of those objects using your preferred tool)
 
-Team_Member__c is a junction object between User and Commercial_Team__c, since one user can belong to multiple teams and one team can have multiple user, configuring a many-to-many relationship.
+`Team_Member__c` is a junction object between `User` and `Commercial_Team__c`, since one user can belong to multiple teams and one team can have multiple user, configuring a many-to-many relationship.
 
-Team_Member__c is a detail of the Master Commercial_Team__c. Why? A team member can only exist if there is a team. No team no members. Master-detail is the appropriate relationship to represent this relation nature. Also, we don't want to leave orphan Team_Member__c records in the org, because they're useless and consume a limited storage. Additionaly, we can leverage roll-up summary feature (SUM, COUNT, MIN, MAX), which is usefull for managing teams and team member abscent end logic.
+`Team_Member__c` is a **detail** of the **Master** `Commercial_Team__c`. Why? A team member can only exist if there is a team. No team, no members. Master-detail is the appropriate object relationship to represent this relation nature. Also, we don't want to leave orphan Team_Member__c records in the org, because they're useless in that state and consume a limited and expansive storage. Additionaly, we can leverage roll-up summary feature (SUM, COUNT, MIN, MAX), which is usefull for managing teams and team member abscent end logic.
 
 ```mermaid
 erDiagram
@@ -172,9 +172,7 @@ Note that although the **Reassign** button handles one record at a time, the rea
 
 The absence feature ensures users marked as unavailable are excluded from receiving new Lead or Opportunity assignments. This is controlled via the `Is_Absent__c` field on each user's `Team_Member__c` records, which represent their membership across different sales teams.
 
-#### Behavior Overview:
-
-##### Marking as Absent:
+#### Marking as Absent:
 Managers can update a user's status to absent, which excludes them from future assignment logic across all teams. They manage their user's absence from the commercial team record page. If the manager mark a given team member as absent, the system:
 ```
     1 - Will get all the team member records related to this user. This set of records represent the user's team membership.
@@ -190,14 +188,14 @@ John Doe is also part of the `FR - KAM - Sales - Gift (+501)` and `FR - KAM - Sa
 
 They are retrieved in the `Team_Member__c` trigger, and updated as absent in the before update.
 
-##### Returning from Absence:
+#### Returning from Absence:
 When a user's `Is_Absent__c` field is updated from true to false, the system:
 
 Automatically updates all of their `Team_Member__c` records to mark them as present.
 
 Sets each record's `Prospect_Count__c` to match the highest count within the corresponding team, ensuring fairness.
 
-##### Trigger Logic and Recursion Control:
+#### Trigger Logic and Recursion Control:
 
 The updates are performed within a before update trigger.
 
@@ -221,7 +219,7 @@ trigger TeamMemberTrigger on Team_Member__c (before update) {
 ```
 This ensures that the trigger logic only executes once per transaction, even if multiple related updates occur.
 
-This design maintains fairness in workload distribution and supports bulk-safe trigger execution without needing asynchronous processing.
+This design maintains fairness in workload distribution and supports bulk-safe trigger execution without needing asynchronous processing. Remember the team's data model to visualize the user's team membership.
 
 
 ```mermaid
