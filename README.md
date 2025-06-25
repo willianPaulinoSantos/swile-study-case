@@ -119,7 +119,7 @@ classDiagram
     3 - Iterate over Trigger Records, building the lead / opportunity composite key (following the same rules of commercial teams composite key)
         4 - Get the right team for the lead / opportunity using the composite key
         5 - Sort the team members ascending based on prospects counter
-        6 - Assign the lead / opportunity to the team member with the fewest prospects count
+        6 - Assign the lead / opportunity to the not absent team member with the fewest prospects count.
         7 - Add 1 to its prospects counter.
 ---
 ### 3.2 Reassignment Feature
@@ -164,7 +164,7 @@ class AssignmentInterface {
         4 - Get the Last Owner Team Member and subtract 1 from its prospects counter.
         5 - Get the right team for the lead / opportunity using the composite key
         6 - Sort the team members ascending based on prospects counter
-        7 - Assign the lead / opportunity to the team member with the fewest prospects count.
+        7 - Assign the lead / opportunity to the not absent team member with the fewest prospects count.
         8 - Add 1 to its prospects counter.
 
 Note that although the **Reassign** button handles one record at a time, the reassignment logic is fully bulkified. This means the solution is designed to support both single and multiple record reassignments efficiently
