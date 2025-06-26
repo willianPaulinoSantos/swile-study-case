@@ -7,7 +7,6 @@ public with sharing class OpportunityAssignmentService extends AbstractAssignmen
         Map<Id, Account> accountMap = accountRepository.getAccountsMapById(getAccountIds(Opportunities));
         Map<String, Commercial_Team__c> commercialTeamMap = getCommercialTeamWithMembersMap();
         Map<String, List<Team_Member__c>> teamMembersMap = buildEligibleMemberMap(commercialTeamMap);
-
         Map<Id, Team_Member__c> teamMembersToUpdate = new Map<Id, Team_Member__c>();
 
         for (Opportunity opp : Opportunities) {

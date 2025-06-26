@@ -6,14 +6,13 @@ public with sharing class TeamMemberAbsenceService {
 
         List<Team_Member__c> filteredTeamMembersBecomingAbsence = filter.filterMembersBecomingAbscent(teamMembersNewState, teamMembersOldState);
         List<Team_Member__c> filteredTeamMembersReturningAbsence = filter.filterMembersReturningFromAbscense(teamMembersNewState, teamMembersOldState);
-        Map<Id, Team_Member__c> teamMembersToUpdate = new Map<Id, Team_Member__c>();
 
         if(filteredTeamMembersReturningAbsence.isEmpty() && filteredTeamMembersBecomingAbsence.isEmpty()) {
             return;
         }
 
         if(!filteredTeamMembersReturningAbsence.isEmpty()){
-            handleTeamMembersReturningAbsence(filteredTeamMembersReturningAbsence, teamMembersToUpdate);
+            handleTeamMembersReturningAbsence(filteredTeamMembersReturningAbsence);
         }
 
         if(!filteredTeamMembersBecomingAbsence.isEmpty()){
@@ -29,7 +28,7 @@ public with sharing class TeamMemberAbsenceService {
 
     }
 
-    public static void handleTeamMembersReturningAbsence(List<Team_Member__c> triggeredTeamMembers, Map<Id, Team_Member__c> teamMembersToUpdate){
+    public static void handleTeamMembersReturningAbsence(List<Team_Member__c> triggeredTeamMembers){
 
         updateTeamMembersAbsenceStatus(triggeredTeamMembers, false);
        
@@ -48,36 +47,19 @@ public with sharing class TeamMemberAbsenceService {
         
         if(isBecomingAbsence){
 
-            for(Team_Member__c member : triggeredTeamMembers){
+            setUsersTeamMembershipAsAbsent(usersTeamsMembershipMap);
 
-                if(usersTeamsMembershipMap.keySet().contains(member.Id)){
-                    usersTeamsMembershipMap.remove(member.Id);
-                }
-                member.is_absent__c = true;
-            }
-
-            for(Team_Member__c member : usersTeamsMembershipMap.values()){
-                member.is_absent__c = true;
-            }
+            removeTriggeredRecordsFromTeamMembership(triggeredTeamMembers, usersTeamsMembershipMap);
 
             update usersTeamsMembershipMap.values();
 
         } else {
 
-            Map<Id, Team_Member__c> teamMembersToUpdate =  filter.filterMembersReturningFromAbscenseBasedOnMaximunProspectCount(usersTeamsMembershipMap, commercialTeamsMap);
+            setCounterAfterAbscenceReturn(usersTeamsMembershipMap, commercialTeamsMap, triggeredTeamMembers);
 
-            setCounterAfterAbscenceReturn(teamMembersToUpdate, commercialTeamsMap);
+            removeTriggeredRecordsFromTeamMembership(triggeredTeamMembers, usersTeamsMembershipMap);
 
-            for(Team_Member__c member : triggeredTeamMembers){
-
-                if(teamMembersToUpdate.keySet().contains(member.Id)){
-                    teamMembersToUpdate.remove(member.Id);
-                }
-                member.is_absent__c = false;
-                member.prospects_count__c = commercialTeamsMap.get(member.commercial_team__c)?.maximum_prospects_count__c;
-            }
-
-            update teamMembersToUpdate.values();
+            update usersTeamsMembershipMap.values();
         }
     }
 
@@ -93,23 +75,38 @@ public with sharing class TeamMemberAbsenceService {
         return membersWithTeamIdKeyMap;
     }
 
-    public static void setCounterAfterAbscenceReturn(Map<Id, Team_Member__c> teamMembersToUpdate, Map<Id, Commercial_Team__c> commercialTeamsMap){
+    public static void setCounterAfterAbscenceReturn(Map<Id, Team_Member__c> usersTeamsMembershipMap, Map<Id, Commercial_Team__c> commercialTeamsMap, List<Team_Member__c> triggeredTeamMembers){
 
-        if(teamMembersToUpdate.isEmpty()){
+        if(usersTeamsMembershipMap.isEmpty()){
             return;
         }
 
-        for(Team_Member__c member : teamMembersToUpdate.values()){
+        for(Team_Member__c member : usersTeamsMembershipMap.values()){
 
             member.prospects_count__c = commercialTeamsMap.get(member.commercial_team__c)?.maximum_prospects_count__c;
             member.is_absent__c = false;
         }
+
+        for(Team_Member__c member : triggeredTeamMembers){
+
+            member.prospects_count__c = commercialTeamsMap.get(member.commercial_team__c)?.maximum_prospects_count__c;
+        }
     }
 
-    public static void setUsersTeamMembershipAsAbsent(Map<Id, Team_Member__c> teamMembersToUpdate){
+    public static void setUsersTeamMembershipAsAbsent(Map<Id, Team_Member__c> usersTeamsMembershipMap){
 
-        for(Team_Member__c member : teamMembersToUpdate.values()){
+        for(Team_Member__c member : usersTeamsMembershipMap.values()){
             member.is_absent__c = true;
+        }
+    }
+
+    public static void removeTriggeredRecordsFromTeamMembership(List<Team_Member__c> triggeredTeamMembers, Map<Id, Team_Member__c> usersTeamsMembershipMap){
+
+        for(Team_Member__c member : triggeredTeamMembers){
+
+            if(usersTeamsMembershipMap.keySet().contains(member.Id)){
+                usersTeamsMembershipMap.remove(member.Id);
+            }
         }
     }
 }

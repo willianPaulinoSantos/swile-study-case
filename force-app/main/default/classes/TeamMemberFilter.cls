@@ -30,19 +30,4 @@ public with sharing class TeamMemberFilter {
 
         return filteredTeamMembersReturningFromAbscense;
     }
-
-    public Map<Id, Team_Member__c> filterMembersReturningFromAbscenseBasedOnMaximunProspectCount(Map<Id, Team_Member__c> usersTeamsMembershipMap, Map<Id, Commercial_Team__c> commercialTeamsMap){
-
-        Map<Id, Team_Member__c> filteredTeamMembersAbscense = new Map<Id, Team_Member__c>();
-
-        for(Team_Member__c member : usersTeamsMembershipMap.values()){
-
-            if(member.prospects_count__c != commercialTeamsMap.get(member.commercial_team__c)?.maximum_prospects_count__c){
-
-                filteredTeamMembersAbscense.put(member.Id, member);
-            }
-        }
-
-        return filteredTeamMembersAbscense;
-    }
 }
