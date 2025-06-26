@@ -23,7 +23,7 @@ public with sharing class TeamMemberCounterResetBatch implements Database.Batcha
     }
 
     public static void scheduleBatch(){
-        String schedule = '0 0 1 * *';
+        String schedule = '0 0 0 1 * ?';
 
 		System.schedule(BATCH_NAME, schedule, new TeamMemberCounterResetBatch());
     }

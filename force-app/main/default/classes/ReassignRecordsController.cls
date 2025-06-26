@@ -27,7 +27,7 @@ public with sharing class ReassignRecordsController {
             List<Lead> leadList = new LeadRepository().getLeadById(recordId);
             new LeadAssignmentService().assign(leadList);
 
-            update leadList;
+            updateRecords(leadList);
         }
 
         if( objectApiName == OPPORTUNITY_API_NAME ) {
@@ -35,8 +35,21 @@ public with sharing class ReassignRecordsController {
             List<Opportunity> opportunityList = new OpportunityRepository().getOpportunityById(recordId);
             new OpportunityAssignmentService().assign(opportunityList);
 
-            update opportunityList;
+            updateRecords(opportunityList);
         }
     }
+
+    public static void updateRecords(List<SObject> records){
+        try{
+
+            update records;
+
+        } catch (Exception e){
+
+            throw new ReassignRecordsControllerException('error when reassingning records. Error message: ' + e.getMessage());
+        }
+    }
+
+    public class ReassignRecordsControllerException extends Exception{}
 
 }
