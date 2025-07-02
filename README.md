@@ -1,6 +1,109 @@
 # Swile Study Case - Willian Paulino
+---
+## Case Description
 
-# Deliverables
+Swile’s sales organization aims to sign contracts for each product.
+Salespeople (Users) are on Salesforce and work with Leads and Opportunities.
+
+They are grouped into commercial teams, each composed of one or more Sales.
+
+They are responsible for selling products to prospects (Lead, or directly Account).
+
+### ▶ Current setup ▶
+When a Lead or Opportunity is created, or a reassignment request is made:
+1. A manager opens the Lead or Opportunity;
+2. Reviews the employee range, country, and product of interest;
+3. Identifies the appropriate team for this Lead or Opportunity;
+4. Within the team, finds the user who has received the fewest Leads or Opportunities
+recently;
+5. Checks that the user is not absent;
+6. Once the user is identified, the manager manually updates the record owner.
+### 🛑 Problem 🛑
+Assigning all these objects manually is time-consuming and error-prone.
+
+**↖ Features ↗**
+1. As soon as a Lead or Opportunity is created, or the “Reassign” button is clicked,
+the object must be automatically and fairly distributed within the appropriate team
+based on employee range, country, and product of interest.
+The right user is the one who has received the fewest leads or opportunities in their
+team.
+2. A User can belong to multiple teams.
+3. If a User is absent, they should not receive leads or opportunities.
+4. When a User returns from absence, their counters should be aligned with the highest
+counters in each of their teams.
+5. A User with “manager” rights can declare users absent in Salesforce.
+6. At the end of each month, each User's counters must be reset to 0.
+
+
+### 🟢 Deliverables 🟢
+Via a Salesforce Trailhead organization:
+1. Create a schema of the base data model (any tool of your choice)
+2. Create the required objects and fields (+ schema of those objects using your preferred
+tool)
+3. Implement the technical solution to fulfill the user stories: Apex Triggers, Apex Classes,
+Batch
+4. (Bonus) On the home page, create a Lightning Web Component to let managers view
+their team members and easily update their availability (present/absent)
+---
+### 📜 Appendix 📜
+#### Base setup
+**User**
+● Can belong to one or several teams
+● Can be a “Manager”: with this role, they can mark users as “absent” (on leave or sick
+leave) in Salesforce and indicate their return
+
+**Lead**
+● Represents the company being prospected for a product sale
+● Has several custom fields, including:
+○ `employee_range__c`
+■ Definition: company size range by number of employees
+■ Type: Picklist
+■ Values:
+■ ‘1 - 100’
+■ ‘101 - 500’
+■ ‘501+’
+○ `product_interest__c`
+■ Definition: the product the prospect is interested in
+■ Type: Picklist
+■ Values:
+■ ‘Meal Voucher’ (France)
+■ ‘Gift’ (France)
+■ ‘Travel’ (France)
+■ ‘Incentivos’ (Brazil)
+■ ‘Beneficios’ (Brazil)
+■ ‘Natal’ (Brazil)
+○ `country_code__c`
+■ Definition: the country code where the prospect’s company is based
+■ Type: Picklist
+■ Values:
+■ ‘BR’ (Brazil)
+■ ‘FR’ (France)
+
+**Account**
+● Represents the company being prospected
+● Has several custom fields, including:
+○ `employee_range__c`
+■ Same definition and values as above
+○ `country_code__c`
+■ Same definition and values as above
+● An account can have one or more opportunities (only one opportunity per product can be
+open at a time)
+Opportunity
+● Represents the product to be sold to the company
+● Has fields including:
+○ `product_interest__c`
+■ Same definition and values as for Lead
+
+**Commercial Team**
+● Not a default object in Salesforce setup
+● Groups several Salesforce users
+● Is mono-product (dedicated to one product only)
+● Sells to a specific employee range only (‘1 - 100’, ‘101 - 500’, ‘+501’)
+● Belongs to one country (‘FR’, ‘BR’)
+
+---
+
+# Case Solution - Deliverables
 ---
 ## 1 - Create a schema of the base data model (any tool of your choice)
 
