@@ -88,7 +88,8 @@ leave) in Salesforce and indicate their return
 - Same definition and values as above
 - An account can have one or more opportunities (only one opportunity per product can be
 open at a time)
-Opportunity
+
+**Opportunity**
 - Represents the product to be sold to the company
 - Has fields including:
 ○ `product_interest__c`
