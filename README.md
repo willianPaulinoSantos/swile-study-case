@@ -48,58 +48,58 @@ their team members and easily update their availability (present/absent)
 ### 📜 Appendix 📜
 #### Base setup
 **User**
-● Can belong to one or several teams
-● Can be a “Manager”: with this role, they can mark users as “absent” (on leave or sick
+- Can belong to one or several teams
+- Can be a “Manager”: with this role, they can mark users as “absent” (on leave or sick
 leave) in Salesforce and indicate their return
 
 **Lead**
-● Represents the company being prospected for a product sale
-● Has several custom fields, including:
+- Represents the company being prospected for a product sale
+- Has several custom fields, including:
 ○ `employee_range__c`
-■ Definition: company size range by number of employees
-■ Type: Picklist
-■ Values:
-■ ‘1 - 100’
-■ ‘101 - 500’
-■ ‘501+’
+- Definition: company size range by number of employees
+- Type: Picklist
+- Values:
+- ‘1 - 100’
+- ‘101 - 500’
+- ‘501+’
 ○ `product_interest__c`
-■ Definition: the product the prospect is interested in
-■ Type: Picklist
-■ Values:
-■ ‘Meal Voucher’ (France)
-■ ‘Gift’ (France)
-■ ‘Travel’ (France)
-■ ‘Incentivos’ (Brazil)
-■ ‘Beneficios’ (Brazil)
-■ ‘Natal’ (Brazil)
+- Definition: the product the prospect is interested in
+- Type: Picklist
+- Values:
+- ‘Meal Voucher’ (France)
+- ‘Gift’ (France)
+- ‘Travel’ (France)
+- ‘Incentivos’ (Brazil)
+- ‘Beneficios’ (Brazil)
+- ‘Natal’ (Brazil)
 ○ `country_code__c`
-■ Definition: the country code where the prospect’s company is based
-■ Type: Picklist
-■ Values:
-■ ‘BR’ (Brazil)
-■ ‘FR’ (France)
+- Definition: the country code where the prospect’s company is based
+- Type: Picklist
+- Values:
+- ‘BR’ (Brazil)
+- ‘FR’ (France)
 
 **Account**
-● Represents the company being prospected
-● Has several custom fields, including:
+- Represents the company being prospected
+- Has several custom fields, including:
 ○ `employee_range__c`
-■ Same definition and values as above
+- Same definition and values as above
 ○ `country_code__c`
-■ Same definition and values as above
-● An account can have one or more opportunities (only one opportunity per product can be
+- Same definition and values as above
+- An account can have one or more opportunities (only one opportunity per product can be
 open at a time)
 Opportunity
-● Represents the product to be sold to the company
-● Has fields including:
+- Represents the product to be sold to the company
+- Has fields including:
 ○ `product_interest__c`
-■ Same definition and values as for Lead
+- Same definition and values as for Lead
 
 **Commercial Team**
-● Not a default object in Salesforce setup
-● Groups several Salesforce users
-● Is mono-product (dedicated to one product only)
-● Sells to a specific employee range only (‘1 - 100’, ‘101 - 500’, ‘+501’)
-● Belongs to one country (‘FR’, ‘BR’)
+- Not a default object in Salesforce setup
+- Groups several Salesforce users
+- Is mono-product (dedicated to one product only)
+- Sells to a specific employee range only (‘1 - 100’, ‘101 - 500’, ‘+501’)
+- Belongs to one country (‘FR’, ‘BR’)
 
 ---
 
